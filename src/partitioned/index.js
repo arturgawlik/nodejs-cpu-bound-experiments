@@ -24,7 +24,7 @@ function calcFibonaciSequence(count, cb) {
     if (counter >= count) {
       cb(oneBack);
     } else {
-      process.nextTick(calcNextNumber);
+      setImmediate(calcNextNumber);
     }
   })(1n, 0n);
 }
