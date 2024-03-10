@@ -1,9 +1,12 @@
 import { retriveParam } from "../helpers.js";
 
 export default function (req, res) {
+  const rand = Math.random();
+  console.time(rand);
   const param = retriveParam(req);
   calcFibonaciSequence(param, (result) => {
     res.end(String(result));
+    console.timeEnd(rand);
   });
 }
 
@@ -24,7 +27,12 @@ function calcFibonaciSequence(count, cb) {
     if (counter >= count) {
       cb(oneBack);
     } else {
-      setImmediate(calcNextNumber);
+      // optimize partioning by using setImmediate for only 1 per 1000 calculations
+      if (counter % 1000) {
+        setImmediate(calcNextNumber);
+      } else {
+        calcNextNumber();
+      }
     }
   })(1n, 0n);
 }

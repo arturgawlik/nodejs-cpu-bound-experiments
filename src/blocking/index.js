@@ -1,10 +1,13 @@
 import { retriveParam } from "../helpers.js";
 
 export default function (req, res) {
+  const rand = Math.random();
+  console.time(rand);
   const param = retriveParam(req);
   const result = calcFibonaciSequence(param);
 
   res.end(String(result));
+  console.timeEnd(rand);
 }
 
 /**
