@@ -44,7 +44,7 @@ function schedule(param, cb) {
 
   function scheduleForProcess(process, indexInPool) {
     process.send({ param });
-    process.on("message", ({ resultStr }) => {
+    process.once("message", ({ resultStr }) => {
       processPool[indexInPool] = [process, false];
       cb(resultStr);
     });
