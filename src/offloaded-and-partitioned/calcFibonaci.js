@@ -7,7 +7,7 @@ process.on("message", async ({ param, requestId }) => {
  * @param {number} count
  * @param {(res: number) => void} cb
  */
-async function calcFibonaciSequence(count, cb) {
+async function calcFibonaciSequence(count) {
   return new Promise((resolve) => {
     let oneBack = 1n;
     let twoBack = 0n;
