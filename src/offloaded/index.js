@@ -5,58 +5,40 @@ import { resolve } from "node:path";
 import { retriveParam } from "../helpers.js";
 
 export default async function (req, res) {
-  const rand = Math.random();
-  console.time(rand);
   const param = retriveParam(req);
   const result = await schedule(param);
   res.end(result);
-  console.timeEnd(rand);
 }
 
 function schedule(param) {
+  const requestId = Math.random();
   return new Promise((resolve) => {
-    let index = null;
-    let firstNonWorkingProcess = null;
-    const foundProcess = processPool.find(([, isWorking], i) => {
-      index = i;
-      return !isWorking;
-    });
-    if (foundProcess) {
-      [firstNonWorkingProcess] = foundProcess;
-    }
+    const process = processPool[getNextProcessIndex()];
 
-    if (firstNonWorkingProcess) {
-      scheduleForProcess(firstNonWorkingProcess, index);
-    } else {
-      for (let i = 0; i < processPool.length; i++) {
-        process.once("message", startProcessListner);
-
-        function startProcessListner() {
-          for (const procToRemoveListner of processPool) {
-            procToRemoveListner.removeListener("message", startProcessListner);
-          }
-          const [process] = processPool[i];
-          scheduleForProcess(process, i);
-        }
-      }
-    }
-
-    function scheduleForProcess(process, indexInPool) {
-      process.send({ param });
-      process.once("message", ({ resultStr }) => {
-        processPool[indexInPool] = [process, false];
-        resolve(resultStr);
-      });
-      processPool[indexInPool] = [process, true];
-    }
+    process.send({ param, requestId });
+    pendingRequets[requestId] = resolve;
   });
 }
 
 const processPool = [];
-const threadsCount = availableParallelism();
+const threadsCount = availableParallelism() / 2;
 for (let i = 0; i < threadsCount; i++) {
-  processPool.push([
-    fork(resolve(import.meta.dirname, "calcFibonaci.js")),
-    false,
-  ]);
+  const process = fork(resolve(import.meta.dirname, "calcFibonaci.js"));
+  process.on("message", ({ resultStr, requestId }) => {
+    pendingRequets[requestId](resultStr);
+    delete pendingRequets[requestId];
+  });
+  processPool.push(process);
 }
+
+let lastIndex = 0;
+function getNextProcessIndex() {
+  if (lastIndex < processPool.length) {
+    return lastIndex++;
+  } else {
+    lastIndex = 0;
+    return lastIndex;
+  }
+}
+
+let pendingRequets = {};

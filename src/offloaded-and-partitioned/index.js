@@ -5,15 +5,13 @@ import { resolve } from "node:path";
 import { retriveParam } from "../helpers.js";
 
 export default async function (req, res) {
-  const rand = Math.random();
-  console.time(rand);
   const param = retriveParam(req);
-  const result = await schedule(param, rand);
+  const result = await schedule(param);
   res.end(result);
-  console.timeEnd(rand);
 }
 
-function schedule(param, requestId) {
+function schedule(param) {
+  const requestId = Math.random();
   return new Promise((resolve) => {
     const process = processPool[getNextProcessIndex()];
 

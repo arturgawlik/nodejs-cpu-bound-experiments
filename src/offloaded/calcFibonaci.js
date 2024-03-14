@@ -1,6 +1,6 @@
-process.on("message", ({ param }) => {
+process.on("message", ({ param, requestId }) => {
   const result = calcFibonaciSequence(param);
-  process.send({ resultStr: String(result) });
+  process.send({ resultStr: String(result), requestId });
 });
 
 /**

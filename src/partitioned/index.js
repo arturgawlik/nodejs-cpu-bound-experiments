@@ -1,38 +1,36 @@
 import { retriveParam } from "../helpers.js";
 
-export default function (req, res) {
-  const rand = Math.random();
-  console.time(rand);
+export default async function (req, res) {
   const param = retriveParam(req);
-  calcFibonaciSequence(param, (result) => {
-    res.end(String(result));
-    console.timeEnd(rand);
-  });
+  const result = calcFibonaciSequence(param);
+  res.end(String(result));
 }
 
 /**
  * @param {number} count
  * @param {(res: number) => void} cb
  */
-function calcFibonaciSequence(count, cb) {
-  let oneBack = 1n;
-  let twoBack = 0n;
-  let counter = 2;
-  let tmp = null;
-  (function calcNextNumber() {
-    counter++;
-    tmp = oneBack;
-    oneBack += twoBack;
-    twoBack = oneBack;
-    if (counter >= count) {
-      cb(oneBack);
-    } else {
-      // optimize partioning by using setImmediate for only 1 per 1000 calculations
-      if (counter % 1000 === 0) {
-        setImmediate(calcNextNumber);
+async function calcFibonaciSequence(count) {
+  return new Promise((resolve) => {
+    let oneBack = 1n;
+    let twoBack = 0n;
+    let counter = 2;
+    let tmp = null;
+    (function calcNextNumber() {
+      counter++;
+      tmp = oneBack;
+      oneBack += twoBack;
+      twoBack = oneBack;
+      if (counter >= count) {
+        resolve(oneBack);
       } else {
-        calcNextNumber();
+        // optimize partioning by using setImmediate for only 1 per 1000 calculations
+        if (counter % 1000 === 0) {
+          setImmediate(calcNextNumber);
+        } else {
+          calcNextNumber();
+        }
       }
-    }
-  })(1n, 0n);
+    })(1n, 0n);
+  });
 }

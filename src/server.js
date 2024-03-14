@@ -11,11 +11,11 @@ const server = createServer(async (req, res) => {
   if (req.url.includes("/blocking/")) {
     return blocking(req, res);
   } else if (req.url.includes("/partitioned/")) {
-    return partitioned(req, res);
+    return await partitioned(req, res);
   } else if (req.url.includes("/offloaded/")) {
     return await offloaded(req, res);
   } else if (req.url.includes("/offloaded-and-partitioned/")) {
-    return offloadedAndPartitioned(req, res);
+    return await offloadedAndPartitioned(req, res);
   }
 
   res.statusCode = 404;
@@ -23,5 +23,5 @@ const server = createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Server listing on port ${PORT}...`);
+  console.log(`Server listing  http://localhost:${PORT} ...`);
 });
