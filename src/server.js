@@ -8,13 +8,13 @@ import offloadedAndPartitioned from "./offloaded-and-partitioned/index.js";
 const PORT = 8000;
 
 const server = createServer(async (req, res) => {
-  if (req.url.includes("/blocking")) {
+  if (req.url.includes("/blocking/")) {
     return blocking(req, res);
-  } else if (req.url.includes("/partitioned")) {
+  } else if (req.url.includes("/partitioned/")) {
     return partitioned(req, res);
-  } else if (req.url.includes("/offloaded")) {
+  } else if (req.url.includes("/offloaded/")) {
     return await offloaded(req, res);
-  } else if (req.url.includes("/offloaded-and-partitioned")) {
+  } else if (req.url.includes("/offloaded-and-partitioned/")) {
     return offloadedAndPartitioned(req, res);
   }
 

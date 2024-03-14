@@ -15,7 +15,6 @@ export default async function (req, res) {
 
 function schedule(param) {
   return new Promise((resolve) => {
-    console.log(processPool);
     let index = null;
     let firstNonWorkingProcess = null;
     const foundProcess = processPool.find(([, isWorking], i) => {
