@@ -28,7 +28,7 @@ function calcFibonaciSequence(count, cb) {
       cb(oneBack);
     } else {
       // optimize partioning by using setImmediate for only 1 per 1000 calculations
-      if (counter % 1000) {
+      if (counter % 1000 === 0) {
         setImmediate(calcNextNumber);
       } else {
         calcNextNumber();

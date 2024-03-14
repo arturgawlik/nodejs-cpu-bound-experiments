@@ -13,7 +13,7 @@ const server = createServer(async (req, res) => {
   } else if (req.url.includes("/partitioned")) {
     return partitioned(req, res);
   } else if (req.url.includes("/offloaded")) {
-    return offloaded(req, res);
+    return await offloaded(req, res);
   } else if (req.url.includes("/offloaded-and-partitioned")) {
     return offloadedAndPartitioned(req, res);
   }

@@ -6,11 +6,10 @@
   "configurations": [
     {
       "name": "Attach to Node",
-      "port": 2000,
+      "processId": "${command:PickProcess}",
       "request": "attach",
       "skipFiles": ["<node_internals>/**"],
-      "type": "node",
-      "restart": true
+      "type": "node"
     }
   ]
 }

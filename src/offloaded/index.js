@@ -4,52 +4,53 @@ import { resolve } from "node:path";
 
 import { retriveParam } from "../helpers.js";
 
-export default function (req, res) {
+export default async function (req, res) {
   const rand = Math.random();
   console.time(rand);
-
   const param = retriveParam(req);
-  schedule(param, (resultStr) => {
-    res.end(resultStr);
-    console.timeEnd(rand);
-  });
+  const result = await schedule(param);
+  res.end(result);
+  console.timeEnd(rand);
 }
 
-function schedule(param, cb) {
-  let index = null;
-  let firstNonWorkingProcess = null;
-  const foundProcess = processPool.find(([, isWorking], i) => {
-    index = i;
-    return !isWorking;
-  });
-  if (foundProcess) {
-    [firstNonWorkingProcess] = foundProcess;
-  }
+function schedule(param) {
+  return new Promise((resolve) => {
+    console.log(processPool);
+    let index = null;
+    let firstNonWorkingProcess = null;
+    const foundProcess = processPool.find(([, isWorking], i) => {
+      index = i;
+      return !isWorking;
+    });
+    if (foundProcess) {
+      [firstNonWorkingProcess] = foundProcess;
+    }
 
-  if (firstNonWorkingProcess) {
-    scheduleForProcess(firstNonWorkingProcess, index);
-  } else {
-    for (let i = 0; i < processPool.length; i++) {
-      process.once("message", startProcessListner);
+    if (firstNonWorkingProcess) {
+      scheduleForProcess(firstNonWorkingProcess, index);
+    } else {
+      for (let i = 0; i < processPool.length; i++) {
+        process.once("message", startProcessListner);
 
-      function startProcessListner() {
-        for (const procToRemoveListner of processPool) {
-          procToRemoveListner.removeListener("message", startProcessListner);
+        function startProcessListner() {
+          for (const procToRemoveListner of processPool) {
+            procToRemoveListner.removeListener("message", startProcessListner);
+          }
+          const [process] = processPool[i];
+          scheduleForProcess(process, i);
         }
-        const [process] = processPool[i];
-        scheduleForProcess(process, i);
       }
     }
-  }
 
-  function scheduleForProcess(process, indexInPool) {
-    process.send({ param });
-    process.once("message", ({ resultStr }) => {
-      processPool[indexInPool] = [process, false];
-      cb(resultStr);
-    });
-    processPool[indexInPool] = [process, true];
-  }
+    function scheduleForProcess(process, indexInPool) {
+      process.send({ param });
+      process.once("message", ({ resultStr }) => {
+        processPool[indexInPool] = [process, false];
+        resolve(resultStr);
+      });
+      processPool[indexInPool] = [process, true];
+    }
+  });
 }
 
 const processPool = [];

@@ -5,8 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node --inspect=2000 src/server.js",
-    "watch": "nodemon --inspect=2000 src/server.js",
+    "start": "node src/server.js",
+    "watch": "nodemon src/server.js",
     "autocannon": "autocannon"
   },
   "author": "",
